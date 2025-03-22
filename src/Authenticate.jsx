@@ -11,8 +11,8 @@ import {
 import axios from "axios";
 import React, { useState } from "react";
 
-export default function Authenticate({ setCurrentUser }) {
-  const [isOpen, setIsOpen] = useState(true);
+export default function Authenticate({ currentUser, setCurrentUser }) {
+  const [isOpen, setIsOpen] = useState(currentUser.rollNo === 0);
 
   return (
     <Modal

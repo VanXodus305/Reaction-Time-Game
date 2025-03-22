@@ -10,7 +10,7 @@ export default function App() {
 
   return (
     <>
-      <Authenticate setCurrentUser={setCurrentUser} />
+      <Authenticate currentUser={currentUser} setCurrentUser={setCurrentUser} />
       <div className="overflow-hidden antialiased text-neutral-200 selection:bg-neutral-200 selection:text-neutral-800">
         <div className="fixed top-0 -z-10 h-full w-full">
           <div
