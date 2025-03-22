@@ -19,7 +19,7 @@ export default function App() {
         </div>
         <div className="container mx-auto px-5 h-screen select-none">
           <div className="h-full flex flex-col items-center justify-start w-full">
-            <Game />
+            {currentUser.rollNo !== 0 && <Game />}
           </div>
         </div>
       </div>
