@@ -1,5 +1,6 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { db } from "./db.js";
 
 const app = new Hono();
 
@@ -14,17 +15,42 @@ app.post("/auth/login", async (c) => {
   if (!name || !rollNo) {
     return c.json({ error: "Name and roll number are required." }, 400);
   }
+
+  try {
+    const user = await db.user.create({
+      data: {
+        name,
+        rollNo,
+      },
+    });
+    return c.json({ message: "User created successfully.", user }, 200);
+  } catch (error) {
+    return c.json({ error: "User already exists." }, 400);
+  }
 });
 
 app.post("/time", async (c) => {
   const body = await c.req.json();
-  const { time } = body;
+  const { userId, time } = body;
 
-  if (!time) {
-    return c.json({ error: "Time is required." }, 400);
+  if (!time || !userId) {
+    return c.json({ error: "Missing fields." }, 400);
   }
 
-  return c.json({ message: `Time received: ${time}` });
+  await db.record.upsert({
+    where: {
+      userId: userId,
+    },
+    create: {
+      userId,
+      time,
+    },
+    update: {
+      time,
+    },
+  });
+
+  return c.json({ message: "Record Time updated successfully." }, 200);
 });
 
 app.get("/leaderboard", async (c) => {});
