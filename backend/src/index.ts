@@ -53,7 +53,18 @@ app.post("/time", async (c) => {
   return c.json({ message: "Record Time updated successfully." }, 200);
 });
 
-app.get("/leaderboard", async (c) => {});
+app.get("/leaderboard", async (c) => {
+  const records = await db.record.findMany({
+    orderBy: {
+      time: "asc",
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  return c.json(records, 200);
+});
 
 serve(
   {
