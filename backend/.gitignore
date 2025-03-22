@@ -1,3 +1,5 @@
+prisma/*.db
+
 # dev
 .yarn/
 !.yarn/releases
