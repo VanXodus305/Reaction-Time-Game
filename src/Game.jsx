@@ -1,33 +1,56 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PiBeerBottleFill } from "react-icons/pi";
 
 const colors = ["#FF3131", "#FFFF00", "#0FFF50", "#FF800D", "#00F0FF"];
 
-export default function Game() {
+const App = () => {
   const [fallingBottle, setFallingBottle] = useState(null);
-  const [removedBottles, setRemovedBottles] = useState([]);
-  const cycleCount = useRef(0);
-  const startingTime = useRef();
+  const [removedBottle, setRemovedBottle] = useState(null);
+  const [cycleCount, setCycleCount] = useState(0);
+  const [fallStartTime, setFallStartTime] = useState(null);
 
   useEffect(() => {
-    const randomIndex = Math.floor(Math.random() * 3);
-    setTimeout(() => {
-      setFallingBottle(randomIndex);
-      startingTime.current = Date.now();
-
+    if (cycleCount < 8) {
+      const randomIndex = Math.floor(Math.random() * 3);
       setTimeout(() => {
-        setRemovedBottles([...removedBottles, randomIndex]);
-        setFallingBottle(null);
+        setFallingBottle(randomIndex);
+        setFallStartTime(Date.now()); // Record the start time
+
+        setTimeout(() => {
+          setRemovedBottle(randomIndex);
+          setTimeout(() => {
+            setFallingBottle(null);
+            setRemovedBottle(null);
+            setCycleCount((prev) => prev + 1);
+          }, 0); // Small delay before restarting the cycle
+        }, 2000); // Allow time for animation before removal
       }, 2000);
-    }, 2000);
-  }, []);
+    }
+  }, [cycleCount]);
+
+  useEffect(() => {
+    const handleKeyPress = () => {
+      if (fallStartTime && cycleCount < 8) {
+        const reactionTime = Date.now() - fallStartTime;
+        console.log(`Reaction time: ${reactionTime}ms`);
+      }
+    };
+
+    if (cycleCount < 8) {
+      window.addEventListener("keydown", handleKeyPress);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [fallStartTime, cycleCount]);
 
   return (
     <div className="flex flex-row items-center justify-center w-full gap-[15%]">
       {Array(3)
-        .fill(0)
+        .fill()
         .map((_, i) =>
-          removedBottles.includes(i) ? null : (
+          removedBottle !== i ? (
             <PiBeerBottleFill
               className={`text-[150px] transition-transform duration-[2000ms] ${
                 fallingBottle === i ? "translate-y-[120vh]" : ""
@@ -36,10 +59,12 @@ export default function Game() {
                 color: colors[Math.floor(Math.random() * colors.length)],
                 position: "relative",
               }}
-              key={`${12}-${i}`}
+              key={`${cycleCount}-${i}`}
             ></PiBeerBottleFill>
-          )
+          ) : null
         )}
     </div>
   );
-}
+};
+
+export default App;
