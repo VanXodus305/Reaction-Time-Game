@@ -11,7 +11,7 @@ import {
 import axios from "axios";
 import React, { useState } from "react";
 
-export default function Authenticate() {
+export default function Authenticate({ setCurrentUser }) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -37,6 +37,8 @@ export default function Authenticate() {
                 title: "Registered successful",
                 color: "success",
               });
+              setCurrentUser({ name, rollNumber: parseInt(rollNumber) });
+              setIsOpen(false);
             })
             .catch(() => {
               addToast({

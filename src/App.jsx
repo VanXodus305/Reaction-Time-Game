@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import Authenticate from "./Authenticate";
 import Game from "./Game";
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState({
+    name: "",
+    rollNo: 0,
+  });
+
   return (
     <>
-      <Authenticate />
+      <Authenticate setCurrentUser={setCurrentUser} />
       <div className="overflow-hidden antialiased text-neutral-200 selection:bg-neutral-200 selection:text-neutral-800">
         <div className="fixed top-0 -z-10 h-full w-full">
           <div
