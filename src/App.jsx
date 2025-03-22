@@ -1,9 +1,11 @@
 import React from "react";
+import Authenticate from "./Authenticate";
 import Game from "./Game";
 
-const App = () => {
+export default function App() {
   return (
     <>
+      <Authenticate />
       <div className="overflow-hidden antialiased text-neutral-200 selection:bg-neutral-200 selection:text-neutral-800">
         <div className="fixed top-0 -z-10 h-full w-full">
           <div
@@ -18,6 +20,4 @@ const App = () => {
       </div>
     </>
   );
-};
-
-export default App;
+}
