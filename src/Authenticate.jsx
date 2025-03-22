@@ -27,26 +27,24 @@ export default function Authenticate() {
           const name = e.target["name"].value;
           const rollNumber = e.target["roll-number"].value;
 
-          const { status } = await axios.post(
-            "http://localhost:3000/auth/login",
-            {
+          axios
+            .post("http://localhost:3000/auth/login", {
               name,
               rollNo: rollNumber,
-            }
-          );
-
-          if (status === 200) {
-            addToast({
-              title: "Registered successful",
-              color: "success",
+            })
+            .then(() => {
+              addToast({
+                title: "Registered successful",
+                color: "success",
+              });
+            })
+            .catch(() => {
+              addToast({
+                title: "Something went wrong",
+                description: "Please try again later",
+                color: "danger",
+              });
             });
-          } else {
-            addToast({
-              title: "Something went wrong",
-              description: "Please try again later",
-              color: "danger",
-            });
-          }
         }}
       >
         <ModalContent>
