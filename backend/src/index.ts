@@ -20,13 +20,21 @@ app.post("/auth/login", async (c) => {
   }
 
   try {
-    const user = await db.user.create({
-      data: {
-        name,
+    let currentUser = await db.user.findUnique({
+      where: {
         rollNo: parseInt(rollNo),
       },
     });
-    return c.json({ message: "User created successfully.", user }, 200);
+
+    if (!currentUser) {
+      currentUser = await db.user.create({
+        data: {
+          name,
+          rollNo: parseInt(rollNo),
+        },
+      });
+    }
+    return c.json({ message: "User created successfully.", currentUser }, 200);
   } catch (error) {
     return c.json({ error: "User already exists." }, 400);
   }
