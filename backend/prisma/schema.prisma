@@ -16,18 +16,18 @@ model User {
   rollNo Int     @unique
   record Record?
 
-  @@index([id, name])
+  @@index([id, name, rollNo])
 }
 
 model Record {
   id   String @id @default(cuid())
   time Int
 
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
+  user   User @relation(fields: [rollNo], references: [rollNo])
+  rollNo Int  @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([id, time, userId])
+  @@index([id, time, rollNo])
 }

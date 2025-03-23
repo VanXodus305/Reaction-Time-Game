@@ -34,18 +34,18 @@ app.post("/auth/login", async (c) => {
 
 app.post("/time", async (c) => {
   const body = await c.req.json();
-  const { userId, time } = body;
+  const { rollNo, time } = body;
 
-  if (!time || !userId) {
+  if (!time || !rollNo || parseInt(rollNo) < 0) {
     return c.json({ error: "Missing fields." }, 400);
   }
 
   await db.record.upsert({
     where: {
-      userId: userId,
+      rollNo: parseInt(rollNo),
     },
     create: {
-      userId,
+      rollNo,
       time,
     },
     update: {
