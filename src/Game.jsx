@@ -1,68 +1,231 @@
 import React, { useEffect, useState } from "react";
 import { PiBeerBottleFill } from "react-icons/pi";
 
-const colors = ["#FF3131", "#FFFF00", "#0FFF50", "#FF800D", "#00F0FF"];
-
 const App = () => {
-  const [fallingBottle, setFallingBottle] = useState(null);
-  const [removedBottle, setRemovedBottle] = useState(null);
-  const [cycleCount, setCycleCount] = useState(0);
-  const [fallStartTime, setFallStartTime] = useState(null);
+  const [gameState, setGameState] = useState({
+    status: "not-started", // New state to track game status
+    fallingBottleIndex: null,
+    bottleColors: ["blue", "blue", "blue"],
+    cycleCount: 0,
+    fallStartTime: null,
+    message: "Press Start to Begin the Reaction Time Game",
+    reactionTimes: [],
+    bestReactionTime: null,
+    roundOver: false
+  });
+
+  const handleStartGame = () => {
+    setGameState({
+      status: "playing",
+      fallingBottleIndex: null,
+      bottleColors: ["blue", "blue", "blue"],
+      cycleCount: 0,
+      fallStartTime: null,
+      message: "",
+      reactionTimes: [],
+      bestReactionTime: null,
+      roundOver: false
+    });
+  };
 
   useEffect(() => {
-    if (cycleCount < 8) {
+    // Only run the game logic when status is "playing"
+    if (gameState.status !== "playing" || gameState.cycleCount >= 5) return;
+
+    const startNewRound = () => {
       const randomIndex = Math.floor(Math.random() * 3);
-      setTimeout(() => {
-        setFallingBottle(randomIndex);
-        setFallStartTime(Date.now()); // Record the start time
+      const randomDelay = Math.floor(Math.random() * 2000) + 1000;
 
-        setTimeout(() => {
-          setRemovedBottle(randomIndex);
-          setTimeout(() => {
-            setFallingBottle(null);
-            setRemovedBottle(null);
-            setCycleCount((prev) => prev + 1);
-          }, 0); // Small delay before restarting the cycle
-        }, 2000); // Allow time for animation before removal
-      }, 2000);
-    }
-  }, [cycleCount]);
+      // Timeout to start the fall
+      const fallTimeout = setTimeout(() => {
+        setGameState(prevState => ({
+          ...prevState,
+          fallingBottleIndex: randomIndex,
+          fallStartTime: Date.now(),
+          message: "",
+          roundOver: false,
+          bottleColors: ["blue", "blue", "blue"]
+        }));
+
+        // Timeout to handle missed round
+        const missedRoundTimeout = setTimeout(() => {
+          setGameState(prevState => {
+            // If round is not over, it means user missed the button press
+            if (!prevState.roundOver) {
+              return {
+                ...prevState,
+                message: "❌ Too Slow! You missed the button press.",
+                bottleColors: prevState.bottleColors.map((color, index) => 
+                  index === randomIndex ? "red" : color
+                ),
+                reactionTimes: [...prevState.reactionTimes, "Missed"],
+                roundOver: true
+              };
+            }
+            return prevState;
+          });
+        }, 1500); // Same as falling duration
+
+        return () => clearTimeout(missedRoundTimeout);
+      }, randomDelay);
+
+      // Timeout to reset bottle after fall
+      const resetTimeout = setTimeout(() => {
+        setGameState(prevState => ({
+          ...prevState,
+          fallingBottleIndex: null,
+          cycleCount: prevState.cycleCount + 1,
+          bottleColors: ["blue", "blue", "blue"]
+        }));
+      }, randomDelay + 2000);
+
+      // Cleanup function to prevent memory leaks
+      return () => {
+        clearTimeout(fallTimeout);
+        clearTimeout(resetTimeout);
+      };
+    };
+
+    const cleanup = startNewRound();
+    return cleanup;
+  }, [gameState.status, gameState.cycleCount]);
 
   useEffect(() => {
-    const handleKeyPress = () => {
-      if (fallStartTime && cycleCount < 8) {
-        const reactionTime = Date.now() - fallStartTime;
-        console.log(`Reaction time: ${reactionTime}ms`);
+    const keyMapping = { 0: "a", 1: "s", 2: "d" };
+
+    const handleKeyPress = (event) => {
+      if (gameState.status !== "playing") return;
+
+      const { fallingBottleIndex, fallStartTime, roundOver } = gameState;
+
+      if (fallStartTime && fallingBottleIndex !== null && !roundOver) {
+        const pressedKey = event.key.toLowerCase();
+
+        if (pressedKey === keyMapping[fallingBottleIndex]) {
+          const timeTaken = Date.now() - fallStartTime;
+          
+          setGameState(prevState => ({
+            ...prevState,
+            message: `✅ Success! Reaction time: ${timeTaken}ms`,
+            bottleColors: prevState.bottleColors.map((color, index) => 
+              index === fallingBottleIndex ? "green" : color
+            ),
+            reactionTimes: [...prevState.reactionTimes, `${timeTaken}ms`],
+            bestReactionTime: prevState.bestReactionTime === null 
+              ? timeTaken 
+              : Math.min(prevState.bestReactionTime, timeTaken),
+            roundOver: true
+          }));
+        } else {
+          setGameState(prevState => ({
+            ...prevState,
+            message: "❌ Wrong key! You lost this round.",
+            bottleColors: prevState.bottleColors.map((color, index) => 
+              index === fallingBottleIndex ? "red" : color
+            ),
+            reactionTimes: [...prevState.reactionTimes, "Wrong Key"],
+            roundOver: true
+          }));
+        }
       }
     };
 
-    if (cycleCount < 8) {
-      window.addEventListener("keydown", handleKeyPress);
-    }
-
+    window.addEventListener("keydown", handleKeyPress);
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [fallStartTime, cycleCount]);
+  }, [gameState.status, gameState.fallStartTime, gameState.fallingBottleIndex, gameState.roundOver]);
+
+  const { status, fallingBottleIndex, bottleColors, cycleCount, message, reactionTimes, bestReactionTime } = gameState;
 
   return (
-    <div className="flex flex-row items-center justify-center w-full gap-[15%]">
-      {Array(3)
-        .fill()
-        .map((_, i) =>
-          removedBottle !== i ? (
-            <PiBeerBottleFill
-              className={`text-[150px] transition-transform duration-[2000ms] ${
-                fallingBottle === i ? "translate-y-[120vh]" : ""
-              }`}
-              style={{
-                color: colors[Math.floor(Math.random() * colors.length)],
-                position: "relative",
-              }}
-              key={`${cycleCount}-${i}`}
-            ></PiBeerBottleFill>
-          ) : null
-        )}
+    <div className="overflow-hidden antialiased text-black selection:bg-gray-200 selection:text-black bg-white min-h-screen flex flex-col">
+      <div className="container mx-auto px-5 select-none">
+        <div className="h-full flex flex-col items-center justify-start w-full">
+          {status === "not-started" ? (
+            <div className="flex flex-col items-center justify-center h-full mt-14">
+              <h1 className="text-3xl font-bold mb-6">Reaction Time Game</h1>
+              <p className="text-lg mb-6 text-center">
+                Press the corresponding key (A, S, D) when the bottle starts falling
+              </p>
+              <button
+                className="px-8 py-4 bg-green-600 text-white rounded-lg text-xl hover:bg-green-700 transition-colors"
+                onClick={handleStartGame}
+              >
+                Start Game
+              </button>
+            </div>
+          ) : status === "playing" && cycleCount < 5 ? (
+            <>
+              {/* Buttons ABOVE the bottles */}
+              <div className="flex flex-row items-center justify-center w-full gap-[15%] mt-[10vh]">
+                {["A", "S", "D"].map((key) => (
+                  <button 
+                    key={key} 
+                    className="p-4 bg-gray-300 rounded text-xl text-black font-bold"
+                  >
+                    {key}
+                  </button>
+                ))}
+              </div>
+
+              {/* Bottles positioned below the buttons */}
+              <div className="flex flex-row items-center justify-center w-full gap-[15%] mt-[5vh]">
+                {[0, 1, 2].map((i) => (
+                  <PiBeerBottleFill
+                    key={`${cycleCount}-${i}`}
+                    className={`text-[150px] transition-transform duration-[1500ms] ${
+                      fallingBottleIndex === i ? "translate-y-[150vh]" : ""
+                    }`}
+                    style={{
+                      color: bottleColors[i],
+                      position: "relative",
+                      opacity: 1,
+                      transform: fallingBottleIndex === i 
+                        ? "translateY(150vh)" 
+                        : "translateY(0)"
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Reaction Time Display */}
+              <div className="absolute top-10 right-10 bg-gray-200 p-5 rounded shadow">
+                <h3 className="text-lg font-bold mb-1">Reaction Times</h3>
+                {reactionTimes.map((time, index) => (
+                  <p 
+                    key={index} 
+                    className={`text-sm ${
+                      time === "Missed" || time === "Wrong Key" 
+                        ? "text-red-600" 
+                        : "text-green-600"
+                    }`}
+                  >
+                    Round {index + 1}: {time}
+                  </p>
+                ))}
+              </div>
+
+              <p className="mt-4 text-lg font-bold">{message}</p>
+            </>
+          ) : (
+            <div className="flex flex-col items-center mt-14">
+              <h2 className="text-2xl font-bold mb-4">Game Over!</h2>
+              {bestReactionTime !== null && (
+                <p className="text-lg font-semibold">
+                  🏆 Best Reaction Time: {bestReactionTime}ms
+                </p>
+              )}
+              <button
+                className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg text-lg hover:bg-blue-700"
+                onClick={handleStartGame}
+              >
+                Play Again
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
