@@ -44,7 +44,7 @@ app.post("/time", async (c) => {
   const body = await c.req.json();
   const { rollNo, time } = body;
 
-  if (!time || !rollNo || parseInt(rollNo) < 0) {
+  if (!time || !rollNo || parseInt(rollNo) < 0 || parseInt(time) < 0) {
     return c.json({ error: "Missing fields." }, 400);
   }
 
@@ -53,11 +53,11 @@ app.post("/time", async (c) => {
       rollNo: parseInt(rollNo),
     },
     create: {
-      rollNo,
-      time,
+      rollNo: parseInt(rollNo),
+      time: parseInt(time),
     },
     update: {
-      time,
+      time: parseInt(time),
     },
   });
 
@@ -74,7 +74,15 @@ app.get("/leaderboard", async (c) => {
     },
   });
 
-  return c.json(records, 200);
+  const parsedRecords = records.map((record) => {
+    return {
+      name: record.user.name,
+      rollNo: record.user.rollNo,
+      bestScore: record.time.toString() + "ms",
+    };
+  });
+
+  return c.json({ records: parsedRecords }, 200);
 });
 
 serve(
