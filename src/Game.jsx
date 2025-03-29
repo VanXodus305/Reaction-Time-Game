@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { PiBeerBottleFill } from "react-icons/pi";
 
-const App = ({ rollNumber }) => {
+export default function Game({ currentUser }) {
   const [leaderboard, setLeaderboard] = useState([]);
   const [gameState, setGameState] = useState({
     status: "not-started", // New state to track game status
@@ -31,8 +31,6 @@ const App = ({ rollNumber }) => {
         });
       });
   }, []);
-
-  console.log(leaderboard);
 
   const handleStartGame = () => {
     setGameState({
@@ -163,16 +161,16 @@ const App = ({ rollNumber }) => {
   ]);
 
   useEffect(() => {
-    if (gameState.status === "playing" || gameState.cycleCount < 5) return;
+    if (gameState.status !== "playing" || gameState.cycleCount < 5) return;
 
     axios
       .post("http://localhost:3000/time", {
-        rollNo: rollNumber,
         time: gameState.bestReactionTime,
+        rollNo: currentUser.rollNumber,
       })
       .then(() => {
         addToast({
-          title: `Time submitted successfully! Your best reaction time was:${gameState.bestReactionTime}ms`,
+          title: `Time submitted successfully! Your best reaction time was: ${gameState.bestReactionTime}ms`,
           variant: "success",
         });
       })
@@ -183,7 +181,7 @@ const App = ({ rollNumber }) => {
           color: "danger",
         });
       });
-  }, [gameState.roundOver]);
+  }, [gameState.status, gameState.cycleCount]);
 
   const {
     status,
@@ -317,6 +315,4 @@ const App = ({ rollNumber }) => {
       </div>
     </div>
   );
-};
-
-export default App;
+}
