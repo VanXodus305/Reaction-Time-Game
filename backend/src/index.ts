@@ -74,7 +74,15 @@ app.get("/leaderboard", async (c) => {
     },
   });
 
-  return c.json(records, 200);
+  const parsedRecords = records.map((record) => {
+    return {
+      name: record.user.name,
+      rollNo: record.user.rollNo,
+      bestScore: record.time.toString() + "ms",
+    };
+  });
+
+  return c.json({ records: parsedRecords }, 200);
 });
 
 serve(
