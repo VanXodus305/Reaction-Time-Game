@@ -1,7 +1,10 @@
+import { addToast } from "@heroui/react";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { PiBeerBottleFill } from "react-icons/pi";
 
-const App = () => {
+const App = ({ rollNumber }) => {
+  const [leaderboard, setLeaderboard] = useState([]);
   const [gameState, setGameState] = useState({
     status: "not-started", // New state to track game status
     fallingBottleIndex: null,
@@ -14,12 +17,22 @@ const App = () => {
     roundOver: false,
   });
 
-  const players = [
-    { name: "Player 1", rollNo: 1, bestScore: "100ms" },
-    { name: "Player 2", rollNo: 2, bestScore: "200ms" },
-    { name: "Player 3", rollNo: 3, bestScore: "300ms" },
-    { name: "Player 4", rollNo: 4, bestScore: "400ms" },
-  ];
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/leaderboard")
+      .then((data) => {
+        setLeaderboard(data.data.records);
+      })
+      .catch(() => {
+        addToast({
+          title: "Unable to fetch leaderboard",
+          description: "Please try again later",
+          color: "danger",
+        });
+      });
+  }, []);
+
+  console.log(leaderboard);
 
   const handleStartGame = () => {
     setGameState({
@@ -149,6 +162,29 @@ const App = () => {
     gameState.roundOver,
   ]);
 
+  useEffect(() => {
+    if (gameState.status === "playing" || gameState.cycleCount < 5) return;
+
+    axios
+      .post("http://localhost:3000/time", {
+        rollNo: rollNumber,
+        time: gameState.bestReactionTime,
+      })
+      .then(() => {
+        addToast({
+          title: `Time submitted successfully! Your best reaction time was:${gameState.bestReactionTime}ms`,
+          variant: "success",
+        });
+      })
+      .catch(() => {
+        addToast({
+          title: "Something went wrong",
+          description: "Please try again later",
+          color: "danger",
+        });
+      });
+  }, [gameState.roundOver]);
+
   const {
     status,
     fallingBottleIndex,
@@ -236,7 +272,7 @@ const App = () => {
               <h2 className="text-4xl font-bold mb-4">Game Over!</h2>
               <h1 className="font-bold mt-4 text-2xl">🏆 Leaderboard</h1>
               <div className="flex flex-col items-center mt-4 rounded-xl border-2 border-gray-500 min-w-[400px] max-w-[500px] overflow-hidden">
-                {players.map((player, index) => (
+                {leaderboard.map((player, index) => (
                   <div
                     key={index}
                     className={`flex flex-row justify-between items-center w-full p-4 ${
