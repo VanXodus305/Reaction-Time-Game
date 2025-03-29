@@ -50,7 +50,7 @@ export default function Authenticate({ currentUser, setCurrentUser }) {
         }}
       >
         <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">Login</ModalHeader>
+          <ModalHeader className="flex flex-col gap-1 text-center w-full">Enter your details</ModalHeader>
           <ModalBody>
             <Input name="name" label="Name:" type="text" required />
             <Input

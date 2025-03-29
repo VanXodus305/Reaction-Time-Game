@@ -11,8 +11,15 @@ const App = () => {
     message: "Press Start to Begin the Reaction Time Game",
     reactionTimes: [],
     bestReactionTime: null,
-    roundOver: false
+    roundOver: false,
   });
+
+  const players = [
+    { name: "Player 1", rollNo: 1, bestScore: "100ms" },
+    { name: "Player 2", rollNo: 2, bestScore: "200ms" },
+    { name: "Player 3", rollNo: 3, bestScore: "300ms" },
+    { name: "Player 4", rollNo: 4, bestScore: "400ms" },
+  ];
 
   const handleStartGame = () => {
     setGameState({
@@ -24,7 +31,7 @@ const App = () => {
       message: "",
       reactionTimes: [],
       bestReactionTime: null,
-      roundOver: false
+      roundOver: false,
     });
   };
 
@@ -38,28 +45,28 @@ const App = () => {
 
       // Timeout to start the fall
       const fallTimeout = setTimeout(() => {
-        setGameState(prevState => ({
+        setGameState((prevState) => ({
           ...prevState,
           fallingBottleIndex: randomIndex,
           fallStartTime: Date.now(),
           message: "",
           roundOver: false,
-          bottleColors: ["blue", "blue", "blue"]
+          bottleColors: ["blue", "blue", "blue"],
         }));
 
         // Timeout to handle missed round
         const missedRoundTimeout = setTimeout(() => {
-          setGameState(prevState => {
+          setGameState((prevState) => {
             // If round is not over, it means user missed the button press
             if (!prevState.roundOver) {
               return {
                 ...prevState,
                 message: "❌ Too Slow! You missed the button press.",
-                bottleColors: prevState.bottleColors.map((color, index) => 
+                bottleColors: prevState.bottleColors.map((color, index) =>
                   index === randomIndex ? "red" : color
                 ),
                 reactionTimes: [...prevState.reactionTimes, "Missed"],
-                roundOver: true
+                roundOver: true,
               };
             }
             return prevState;
@@ -71,11 +78,11 @@ const App = () => {
 
       // Timeout to reset bottle after fall
       const resetTimeout = setTimeout(() => {
-        setGameState(prevState => ({
+        setGameState((prevState) => ({
           ...prevState,
           fallingBottleIndex: null,
           cycleCount: prevState.cycleCount + 1,
-          bottleColors: ["blue", "blue", "blue"]
+          bottleColors: ["blue", "blue", "blue"],
         }));
       }, randomDelay + 2000);
 
@@ -103,28 +110,29 @@ const App = () => {
 
         if (pressedKey === keyMapping[fallingBottleIndex]) {
           const timeTaken = Date.now() - fallStartTime;
-          
-          setGameState(prevState => ({
+
+          setGameState((prevState) => ({
             ...prevState,
             message: `✅ Success! Reaction time: ${timeTaken}ms`,
-            bottleColors: prevState.bottleColors.map((color, index) => 
+            bottleColors: prevState.bottleColors.map((color, index) =>
               index === fallingBottleIndex ? "green" : color
             ),
             reactionTimes: [...prevState.reactionTimes, `${timeTaken}ms`],
-            bestReactionTime: prevState.bestReactionTime === null 
-              ? timeTaken 
-              : Math.min(prevState.bestReactionTime, timeTaken),
-            roundOver: true
+            bestReactionTime:
+              prevState.bestReactionTime === null
+                ? timeTaken
+                : Math.min(prevState.bestReactionTime, timeTaken),
+            roundOver: true,
           }));
         } else {
-          setGameState(prevState => ({
+          setGameState((prevState) => ({
             ...prevState,
             message: "❌ Wrong key! You lost this round.",
-            bottleColors: prevState.bottleColors.map((color, index) => 
+            bottleColors: prevState.bottleColors.map((color, index) =>
               index === fallingBottleIndex ? "red" : color
             ),
             reactionTimes: [...prevState.reactionTimes, "Wrong Key"],
-            roundOver: true
+            roundOver: true,
           }));
         }
       }
@@ -134,9 +142,22 @@ const App = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [gameState.status, gameState.fallStartTime, gameState.fallingBottleIndex, gameState.roundOver]);
+  }, [
+    gameState.status,
+    gameState.fallStartTime,
+    gameState.fallingBottleIndex,
+    gameState.roundOver,
+  ]);
 
-  const { status, fallingBottleIndex, bottleColors, cycleCount, message, reactionTimes, bestReactionTime } = gameState;
+  const {
+    status,
+    fallingBottleIndex,
+    bottleColors,
+    cycleCount,
+    message,
+    reactionTimes,
+    bestReactionTime,
+  } = gameState;
 
   return (
     <div className="overflow-hidden antialiased text-black selection:bg-gray-200 selection:text-black bg-white min-h-screen flex flex-col">
@@ -146,7 +167,8 @@ const App = () => {
             <div className="flex flex-col items-center justify-center h-full mt-14">
               <h1 className="text-3xl font-bold mb-6">Reaction Time Game</h1>
               <p className="text-lg mb-6 text-center">
-                Press the corresponding key (A, S, D) when the bottle starts falling
+                Press the corresponding key (A, S, D) when the bottle starts
+                falling
               </p>
               <button
                 className="px-8 py-4 bg-green-600 text-white rounded-lg text-xl hover:bg-green-700 transition-colors"
@@ -160,8 +182,8 @@ const App = () => {
               {/* Buttons ABOVE the bottles */}
               <div className="flex flex-row items-center justify-center w-full gap-[15%] mt-[10vh]">
                 {["A", "S", "D"].map((key) => (
-                  <button 
-                    key={key} 
+                  <button
+                    key={key}
                     className="p-4 bg-gray-300 rounded text-xl text-black font-bold"
                   >
                     {key}
@@ -181,9 +203,10 @@ const App = () => {
                       color: bottleColors[i],
                       position: "relative",
                       opacity: 1,
-                      transform: fallingBottleIndex === i 
-                        ? "translateY(150vh)" 
-                        : "translateY(0)"
+                      transform:
+                        fallingBottleIndex === i
+                          ? "translateY(150vh)"
+                          : "translateY(0)",
                     }}
                   />
                 ))}
@@ -193,11 +216,11 @@ const App = () => {
               <div className="absolute top-10 right-10 bg-gray-200 p-5 rounded shadow">
                 <h3 className="text-lg font-bold mb-1">Reaction Times</h3>
                 {reactionTimes.map((time, index) => (
-                  <p 
-                    key={index} 
+                  <p
+                    key={index}
                     className={`text-sm ${
-                      time === "Missed" || time === "Wrong Key" 
-                        ? "text-red-600" 
+                      time === "Missed" || time === "Wrong Key"
+                        ? "text-red-600"
                         : "text-green-600"
                     }`}
                   >
@@ -209,12 +232,42 @@ const App = () => {
               <p className="mt-4 text-lg font-bold">{message}</p>
             </>
           ) : (
-            <div className="flex flex-col items-center mt-14">
-              <h2 className="text-2xl font-bold mb-4">Game Over!</h2>
+            <div className="flex flex-col items-center mt-14 w-full">
+              <h2 className="text-4xl font-bold mb-4">Game Over!</h2>
+              <h1 className="font-bold mt-4 text-2xl">🏆 Leaderboard</h1>
+              <div className="flex flex-col items-center mt-4 rounded-xl border-2 border-gray-500 min-w-[400px] max-w-[500px] overflow-hidden">
+                {players.map((player, index) => (
+                  <div
+                    key={index}
+                    className={`flex flex-row justify-between items-center w-full p-4 ${
+                      index % 2 === 0 ? "bg-gray-400" : "bg-neutral-100"
+                    }`}
+                  >
+                    <h1 className="font-semibold text-lg w-1/3 text-left">
+                      #{index + 1}{" "}
+                      {index === 0
+                        ? "🥇"
+                        : index === 1
+                        ? "🥈"
+                        : index === 2
+                        ? "🥉"
+                        : ""}
+                    </h1>
+                    <h1 className="font-semibold text-lg w-1/3 text-center">
+                      {player.name}
+                    </h1>
+                    <h1 className="font-semibold text-lg w-1/3 text-right">
+                      {player.bestScore}
+                    </h1>
+                  </div>
+                ))}
+              </div>
               {bestReactionTime !== null && (
-                <p className="text-lg font-semibold">
-                  🏆 Best Reaction Time: {bestReactionTime}ms
-                </p>
+                <div>
+                  <p className="text-lg font-semibold">
+                    🏆 Best Reaction Time: {bestReactionTime}ms
+                  </p>
+                </div>
               )}
               <button
                 className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg text-lg hover:bg-blue-700"
