@@ -163,6 +163,17 @@ export default function Game({ currentUser }) {
   useEffect(() => {
     if (gameState.status !== "playing" || gameState.cycleCount < 5) return;
 
+    setLeaderboard((prevLeaderboard) => {
+      return [
+        ...prevLeaderboard,
+        {
+          name: currentUser.name,
+          rollNo: currentUser.rollNo,
+          bestScore: gameState.bestReactionTime,
+        },
+      ].sort((a, b) => parseFloat(a.bestScore) - parseFloat(b.bestScore));
+    });
+
     axios
       .post("http://localhost:3000/time", {
         time: gameState.bestReactionTime,
