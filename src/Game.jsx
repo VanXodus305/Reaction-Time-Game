@@ -169,7 +169,7 @@ export default function Game({ currentUser }) {
         {
           name: currentUser.name,
           rollNo: currentUser.rollNo,
-          bestScore: gameState.bestReactionTime,
+          bestScore: `${gameState.bestReactionTime}ms`,
         },
       ].sort((a, b) => parseFloat(a.bestScore) - parseFloat(b.bestScore));
     });
@@ -281,15 +281,19 @@ export default function Game({ currentUser }) {
               <h2 className="text-4xl font-bold mb-4">Game Over!</h2>
               <h1 className="font-bold mt-4 text-2xl">🏆 Leaderboard</h1>
               <div className="flex flex-col items-center mt-4 rounded-xl border-2 border-gray-500 min-w-[400px] max-w-[500px] overflow-hidden">
-                {leaderboard.map((player, index) => (
+                {leaderboard.slice(0, 5).map((player, index) => (
                   <div
                     key={index}
                     className={`flex flex-row justify-between items-center w-full p-4 ${
-                      index % 2 === 0 ? "bg-gray-400" : "bg-neutral-100"
+                      player.rollNo == currentUser.rollNo
+                        ? "bg-blue-300"
+                        : index % 2 === 0
+                        ? "bg-gray-400"
+                        : "bg-neutral-100"
                     }`}
                   >
                     <h1 className="font-semibold text-lg w-1/3 text-left">
-                      #{index + 1}{" "}
+                      {`#${index + 1} `}
                       {index === 0
                         ? "🥇"
                         : index === 1
@@ -306,14 +310,36 @@ export default function Game({ currentUser }) {
                     </h1>
                   </div>
                 ))}
+                {}
+                {!leaderboard
+                  .slice(0, 5)
+                  .find((player) => player.rollNo === currentUser.rollNo) && (
+                  <div
+                    className={`flex flex-row justify-between items-center w-full p-4 bg-blue-300`}
+                  >
+                    <h1 className="font-semibold text-lg w-1/3 text-left">
+                      {`#${
+                        leaderboard.findIndex(
+                          (player) => player.rollNo === currentUser.rollNo
+                        ) + 1
+                      }`}
+                    </h1>
+                    <h1 className="font-semibold text-lg w-1/3 text-center">
+                      {currentUser.name}
+                    </h1>
+                    <h1 className="font-semibold text-lg w-1/3 text-right">
+                      {`${bestReactionTime}ms`}
+                    </h1>
+                  </div>
+                )}
               </div>
-              {bestReactionTime !== null && (
+              {/* {bestReactionTime !== null && (
                 <div>
                   <p className="text-lg font-semibold">
                     🏆 Best Reaction Time: {bestReactionTime}ms
                   </p>
                 </div>
-              )}
+              )} */}
               <button
                 className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg text-lg hover:bg-blue-700"
                 onClick={handleStartGame}
