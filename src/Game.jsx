@@ -52,27 +52,36 @@ export default function Game({ currentUser }) {
   // Get fall duration based on difficulty - significantly different values
   const getFallDuration = () => {
     switch (gameState.difficulty) {
-      case "easy": return 3000; // Slower fall - 3 seconds
-      case "hard": return 600; // Very fast fall - 0.6 seconds
-      default: return 1500; // medium - 1.5 seconds
+      case "easy":
+        return 3000; // Slower fall - 3 seconds
+      case "hard":
+        return 600; // Very fast fall - 0.6 seconds
+      default:
+        return 1500; // medium - 1.5 seconds
     }
   };
 
   // Get delay between rounds based on difficulty
   const getDelayBetweenRounds = () => {
     switch (gameState.difficulty) {
-      case "easy": return 2000; // More time between rounds
-      case "hard": return 300; // Very little time between rounds
-      default: return 1000; // medium
+      case "easy":
+        return 2000; // More time between rounds
+      case "hard":
+        return 300; // Very little time between rounds
+      default:
+        return 1000; // medium
     }
   };
-  
+
   // Get random delay before bottle falls based on difficulty
   const getRandomDelayRange = () => {
     switch (gameState.difficulty) {
-      case "easy": return { min: 1000, max: 2000 }; // More predictable
-      case "hard": return { min: 200, max: 1500 }; // Very unpredictable
-      default: return { min: 800, max: 2000 }; // medium
+      case "easy":
+        return { min: 1000, max: 2000 }; // More predictable
+      case "hard":
+        return { min: 200, max: 1500 }; // Very unpredictable
+      default:
+        return { min: 800, max: 2000 }; // medium
     }
   };
 
@@ -103,7 +112,9 @@ export default function Game({ currentUser }) {
       }
 
       const delayRange = getRandomDelayRange();
-      const randomDelay = Math.floor(Math.random() * (delayRange.max - delayRange.min)) + delayRange.min;
+      const randomDelay =
+        Math.floor(Math.random() * (delayRange.max - delayRange.min)) +
+        delayRange.min;
       const fallDuration = getFallDuration();
 
       // Timeout to start the fall
@@ -166,7 +177,8 @@ export default function Game({ currentUser }) {
     const handleKeyPress = (event) => {
       if (gameState.status !== "playing") return;
 
-      const { fallingBottleIndex, fallStartTime, roundOver, difficulty } = gameState;
+      const { fallingBottleIndex, fallStartTime, roundOver, difficulty } =
+        gameState;
 
       if (fallStartTime && fallingBottleIndex !== null && !roundOver) {
         const pressedKey = event.key.toLowerCase();
@@ -199,7 +211,7 @@ export default function Game({ currentUser }) {
             }));
             return; // Don't mark the round as over yet
           }
-          
+
           setGameState((prevState) => ({
             ...prevState,
             message: "❌ Wrong key! You lost this round.",
@@ -229,15 +241,15 @@ export default function Game({ currentUser }) {
     if (gameState.status !== "playing" || gameState.cycleCount < 5) return;
 
     const validTimes = gameState.reactionTimes
-      .map(time => {
-        if (typeof time === 'string' && time.includes('ms')) {
+      .map((time) => {
+        if (typeof time === "string" && time.includes("ms")) {
           // Extract numeric part before "ms"
-          return parseInt(time.replace('ms', ''));
+          return parseInt(time.replace("ms", ""));
         }
         return null;
       })
-      .filter(time => time !== null);
-      
+      .filter((time) => time !== null);
+
     const bestTime = validTimes.length > 0 ? Math.min(...validTimes) : null;
 
     if (bestTime !== null) {
@@ -248,7 +260,7 @@ export default function Game({ currentUser }) {
             name: currentUser.name,
             rollNo: currentUser.rollNo,
             bestScore: `${bestTime}ms`,
-            difficulty: gameState.difficulty
+            difficulty: gameState.difficulty,
           },
         ].sort((a, b) => {
           const scoreA = parseInt(a.bestScore);
@@ -264,7 +276,7 @@ export default function Game({ currentUser }) {
         .post("http://localhost:3000/time", {
           time: bestTime,
           rollNo: userRollNo,
-          difficulty: gameState.difficulty
+          difficulty: gameState.difficulty,
         })
         .then(() => {
           addToast({
@@ -290,15 +302,15 @@ export default function Game({ currentUser }) {
     message,
     reactionTimes,
     bestReactionTime,
-    difficulty
+    difficulty,
   } = gameState;
 
   // Function to calculate average score excluding misses and wrong keys
   const calculateAverage = (times) => {
     const validTimes = times
-      .filter(time => typeof time === 'string' && time.includes('ms'))
-      .map(time => parseInt(time.replace('ms', '')));
-    
+      .filter((time) => typeof time === "string" && time.includes("ms"))
+      .map((time) => parseInt(time.replace("ms", "")));
+
     if (validTimes.length === 0) return "N/A";
     const sum = validTimes.reduce((acc, val) => acc + val, 0);
     return `${Math.round(sum / validTimes.length)}ms`;
@@ -308,11 +320,11 @@ export default function Game({ currentUser }) {
   const getSuccessRate = () => {
     const totalRounds = reactionTimes.length;
     if (totalRounds === 0) return "0%";
-    
-    const successfulRounds = reactionTimes.filter(time => 
-      typeof time === 'string' && time.includes('ms')
+
+    const successfulRounds = reactionTimes.filter(
+      (time) => typeof time === "string" && time.includes("ms")
     ).length;
-    
+
     return `${Math.round((successfulRounds / totalRounds) * 100)}%`;
   };
 
@@ -322,16 +334,20 @@ export default function Game({ currentUser }) {
         <div className="h-full flex flex-col items-center justify-start w-full">
           {status === "not-started" ? (
             <div className="flex flex-col items-center justify-center h-full mt-14">
-              <h1 className="text-4xl font-bold mb-6 text-blue-600">Reaction Time Challenge</h1>
+              <h1 className="text-4xl font-bold mb-6 text-blue-600">
+                Reaction Time Challenge
+              </h1>
               <div className="mb-8 text-center max-w-lg">
                 <p className="text-lg mb-3">
-                  Test your reflexes! Press the corresponding key (A, S, D) when the bottle starts falling.
+                  Test your reflexes! Press the corresponding key (A, S, D) when
+                  the bottle starts falling.
                 </p>
                 <p className="text-sm text-gray-600">
-                  The faster you react, the better your score. Complete 5 rounds to see your ranking.
+                  The faster you react, the better your score. Complete 5 rounds
+                  to see your ranking.
                 </p>
               </div>
-              
+
               <div className="flex flex-col space-y-4 items-center">
                 <h2 className="text-lg font-semibold">Select Difficulty:</h2>
                 <div className="flex space-x-4">
@@ -355,15 +371,25 @@ export default function Game({ currentUser }) {
                   </button>
                 </div>
                 <div className="mt-4 text-sm text-gray-600 max-w-lg text-center">
-                  <p><strong>Easy:</strong> Slower falling bottles, forgiving controls, more predictable patterns</p>
-                  <p><strong>Medium:</strong> Moderate speed, standard controls</p>
-                  <p><strong>Hard:</strong> Fast falling bottles, strict controls, unpredictable timing</p>
+                  <p>
+                    <strong>Easy:</strong> Slower falling bottles, forgiving
+                    controls, more predictable patterns
+                  </p>
+                  <p>
+                    <strong>Medium:</strong> Moderate speed, standard controls
+                  </p>
+                  <p>
+                    <strong>Hard:</strong> Fast falling bottles, strict
+                    controls, unpredictable timing
+                  </p>
                 </div>
               </div>
-              
+
               {leaderboard.length > 0 && (
                 <div className="mt-12 w-full max-w-md mb-20">
-                  <h2 className="text-xl font-bold mb-2 text-center">🏆 Top Players</h2>
+                  <h2 className="text-xl font-bold mb-2 text-center">
+                    🏆 Top Players
+                  </h2>
                   <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
                     <div className="bg-blue-100 py-2 px-4 grid grid-cols-3 font-semibold text-gray-700">
                       <div>Rank</div>
@@ -371,15 +397,18 @@ export default function Game({ currentUser }) {
                       <div className="text-right">Best Time</div>
                     </div>
                     {leaderboard.slice(0, 3).map((player, index) => (
-                      <div 
+                      <div
                         key={index}
                         className="py-2 px-4 grid grid-cols-3 border-t border-gray-100 hover:bg-blue-50"
                       >
                         <div className="font-medium">
-                          {index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"} #{index + 1}
+                          {index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"} #
+                          {index + 1}
                         </div>
                         <div>{player.name}</div>
-                        <div className="text-right font-mono">{player.bestScore}</div>
+                        <div className="text-right font-mono">
+                          {player.bestScore}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -391,11 +420,16 @@ export default function Game({ currentUser }) {
               {/* Game Header */}
               <div className="w-full bg-white shadow-md rounded-lg p-3 mt-4 flex justify-between items-center">
                 <div className="text-lg font-semibold">
-                  Round: {cycleCount + 1}/5 • Difficulty: 
-                  <span className={`ml-1 ${
-                    difficulty === "easy" ? "text-green-500" : 
-                    difficulty === "hard" ? "text-red-500" : "text-blue-500"
-                  }`}>
+                  Round: {cycleCount + 1}/5 • Difficulty:
+                  <span
+                    className={`ml-1 ${
+                      difficulty === "easy"
+                        ? "text-green-500"
+                        : difficulty === "hard"
+                        ? "text-red-500"
+                        : "text-blue-500"
+                    }`}
+                  >
                     {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
                   </span>
                 </div>
@@ -408,8 +442,12 @@ export default function Game({ currentUser }) {
               </div>
 
               {/* Message Display */}
-              <div className={`mt-4 text-center h-8 ${message ? "" : "invisible"}`}>
-                <p className="text-lg font-medium">{message || "Placeholder"}</p>
+              <div
+                className={`mt-4 text-center h-8 ${message ? "" : "invisible"}`}
+              >
+                <p className="text-lg font-medium">
+                  {message || "Placeholder"}
+                </p>
               </div>
 
               {/* Buttons ABOVE the bottles */}
@@ -418,9 +456,11 @@ export default function Game({ currentUser }) {
                   <button
                     key={key}
                     className={`p-4 rounded-lg text-xl font-bold w-16 h-16 flex items-center justify-center shadow-md transition-all ${
-                      bottleColors[i] === "green" ? "bg-green-500 text-white" :
-                      bottleColors[i] === "red" ? "bg-red-500 text-white" :
-                      "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                      bottleColors[i] === "green"
+                        ? "bg-green-500 text-white"
+                        : bottleColors[i] === "red"
+                        ? "bg-red-500 text-white"
+                        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                     }`}
                   >
                     {key}
@@ -431,10 +471,7 @@ export default function Game({ currentUser }) {
               {/* Bottles positioned below the buttons */}
               <div className="flex flex-row items-center justify-center w-full gap-[15%] mt-[5vh] mb-8">
                 {[0, 1, 2].map((i) => (
-                  <div 
-                    key={`bottle-${cycleCount}-${i}`} 
-                    className="relative"
-                  >
+                  <div key={`bottle-${cycleCount}-${i}`} className="relative">
                     <PiBeerBottleFill
                       className={`text-[120px] transition-all ${
                         fallingBottleIndex === i ? "duration-1500" : ""
@@ -443,15 +480,21 @@ export default function Game({ currentUser }) {
                         color: bottleColors[i],
                         position: "relative",
                         opacity: 1,
-                        transform: fallingBottleIndex === i ? "translateY(150vh)" : "translateY(0)",
+                        transform:
+                          fallingBottleIndex === i
+                            ? "translateY(150vh)"
+                            : "translateY(0)",
                         filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1))",
-                        transitionDuration: fallingBottleIndex === i ? `${getFallDuration()}ms` : "0ms"
+                        transitionDuration:
+                          fallingBottleIndex === i
+                            ? `${getFallDuration()}ms`
+                            : "0ms",
                       }}
                     />
                     {fallingBottleIndex === i && (
-                      <div 
+                      <div
                         className="absolute left-0 right-0 h-16 -bottom-16 bg-gradient-to-t from-blue-100 to-transparent opacity-50"
-                        style={{zIndex: -1}}
+                        style={{ zIndex: -1 }}
                       />
                     )}
                   </div>
@@ -477,22 +520,34 @@ export default function Game({ currentUser }) {
                       Round {index + 1}: {time}
                     </p>
                   ))}
-                  {Array(5 - reactionTimes.length).fill(0).map((_, i) => (
-                    <p key={`placeholder-${i}`} className="text-sm text-gray-300">
-                      Round {reactionTimes.length + i + 1}: --
-                    </p>
-                  ))}
+                  {Array(5 - reactionTimes.length)
+                    .fill(0)
+                    .map((_, i) => (
+                      <p
+                        key={`placeholder-${i}`}
+                        className="text-sm text-gray-300"
+                      >
+                        Round {reactionTimes.length + i + 1}: --
+                      </p>
+                    ))}
                 </div>
               </div>
 
               {/* Game Instructions */}
               <div className="fixed bottom-4 left-4 bg-white p-3 rounded-lg shadow-md text-sm text-gray-600 max-w-xs">
-                <p>Press the key (A, S, D) that corresponds to the falling bottle as quickly as possible!</p>
+                <p>
+                  Press the key (A, S, D) that corresponds to the falling bottle
+                  as quickly as possible!
+                </p>
                 {difficulty === "easy" && (
-                  <p className="mt-1 text-green-600">Easy mode: You can try again if you press the wrong key.</p>
+                  <p className="mt-1 text-green-600">
+                    Easy mode: You can try again if you press the wrong key.
+                  </p>
                 )}
                 {difficulty === "hard" && (
-                  <p className="mt-1 text-red-600">Hard mode: One wrong move and you miss the round!</p>
+                  <p className="mt-1 text-red-600">
+                    Hard mode: One wrong move and you miss the round!
+                  </p>
                 )}
               </div>
             </>
@@ -501,7 +556,9 @@ export default function Game({ currentUser }) {
               <div className="mb-6 text-center">
                 <h2 className="text-4xl font-bold mb-2">Game Over!</h2>
                 <p className="text-lg text-gray-600">
-                  {bestReactionTime ? `Your best reaction time was ${bestReactionTime}ms` : "Try again for a better score!"}
+                  {bestReactionTime
+                    ? `Your best reaction time was ${bestReactionTime}ms`
+                    : "Try again for a better score!"}
                 </p>
               </div>
 
@@ -509,11 +566,15 @@ export default function Game({ currentUser }) {
               <div className="grid grid-cols-3 gap-4 mb-8">
                 <div className="bg-white p-4 rounded-lg shadow-md text-center">
                   <div className="text-blue-500 text-xl mb-1">Best Time</div>
-                  <div className="font-bold text-2xl">{bestReactionTime ? `${bestReactionTime}ms` : "N/A"}</div>
+                  <div className="font-bold text-2xl">
+                    {bestReactionTime ? `${bestReactionTime}ms` : "N/A"}
+                  </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-md text-center">
                   <div className="text-blue-500 text-xl mb-1">Average</div>
-                  <div className="font-bold text-2xl">{calculateAverage(reactionTimes)}</div>
+                  <div className="font-bold text-2xl">
+                    {calculateAverage(reactionTimes)}
+                  </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-md text-center">
                   <div className="text-blue-500 text-xl mb-1">Success Rate</div>
@@ -557,12 +618,19 @@ export default function Game({ currentUser }) {
                           : ""}
                       </div>
                       <div>{player.name}</div>
-                      <div className={`text-center ${
-                        (player.difficulty || "medium") === "easy" ? "text-green-500" : 
-                        (player.difficulty || "medium") === "hard" ? "text-red-500" : "text-blue-500"
-                      }`}>
-                        {(player.difficulty || "medium").charAt(0).toUpperCase() + 
-                         (player.difficulty || "medium").slice(1)}
+                      <div
+                        className={`text-center ${
+                          (player.difficulty || "medium") === "easy"
+                            ? "text-green-500"
+                            : (player.difficulty || "medium") === "hard"
+                            ? "text-red-500"
+                            : "text-blue-500"
+                        }`}
+                      >
+                        {(player.difficulty || "medium")
+                          .charAt(0)
+                          .toUpperCase() +
+                          (player.difficulty || "medium").slice(1)}
                       </div>
                       <div className="text-right font-mono">
                         {player.bestScore}
@@ -581,7 +649,12 @@ export default function Game({ currentUser }) {
                 </button>
                 <button
                   className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg text-lg hover:bg-gray-300 shadow-md transition-all"
-                  onClick={() => setGameState(prevState => ({...prevState, status: "not-started"}))}
+                  onClick={() =>
+                    setGameState((prevState) => ({
+                      ...prevState,
+                      status: "not-started",
+                    }))
+                  }
                 >
                   Change Difficulty
                 </button>
