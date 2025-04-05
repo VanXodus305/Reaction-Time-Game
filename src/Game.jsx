@@ -391,21 +391,24 @@ export default function Game({ currentUser }) {
                     🏆 Top Players
                   </h2>
                   <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
-                    <div className="bg-blue-100 py-2 px-4 grid grid-cols-3 font-semibold text-gray-700">
+                    <div className="bg-blue-100 py
+                    -2 px-4 grid grid-cols-4 font-semibold text-gray-700">
                       <div>Rank</div>
                       <div>Name</div>
+                      <div>Roll No.</div>
                       <div className="text-right">Best Time</div>
                     </div>
                     {leaderboard.slice(0, 3).map((player, index) => (
                       <div
                         key={index}
-                        className="py-2 px-4 grid grid-cols-3 border-t border-gray-100 hover:bg-blue-50"
+                        className="py-2 px-4 grid grid-cols-4 border-t border-gray-100 hover:bg-blue-50"
                       >
                         <div className="font-medium">
                           {index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"} #
                           {index + 1}
                         </div>
                         <div>{player.name}</div>
+                        <div>{player.rollNo}</div>
                         <div className="text-right font-mono">
                           {player.bestScore}
                         </div>
@@ -588,9 +591,10 @@ export default function Game({ currentUser }) {
               </h1>
               <div className="bg-white rounded-xl shadow-lg border border-gray-200 min-w-[500px] max-w-[600px] overflow-hidden">
                 <div className="bg-blue-50 text-gray-700 font-semibold">
-                  <div className="grid grid-cols-4 gap-2 p-3 border-b border-gray-200">
+                  <div className="grid grid-cols-5 gap-2 p-3 border-b border-gray-200">
                     <div>Rank</div>
-                    <div>Player</div>
+                    <div>Name</div>
+                    <div>Roll No.</div>
                     <div className="text-center">Difficulty</div>
                     <div className="text-right">Best Time</div>
                   </div>
@@ -599,7 +603,7 @@ export default function Game({ currentUser }) {
                   {leaderboard.slice(0, 10).map((player, index) => (
                     <div
                       key={index}
-                      className={`grid grid-cols-4 gap-2 p-3 items-center ${
+                      className={`grid grid-cols-5 gap-2 p-3 items-center ${
                         player.rollNo === currentUser.rollNo
                           ? "bg-blue-100"
                           : index % 2 === 0
@@ -618,6 +622,7 @@ export default function Game({ currentUser }) {
                           : ""}
                       </div>
                       <div>{player.name}</div>
+                      <div>{player.rollNo}</div>
                       <div
                         className={`text-center ${
                           (player.difficulty || "medium") === "easy"
