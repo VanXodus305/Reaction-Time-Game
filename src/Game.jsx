@@ -392,7 +392,7 @@ export default function Game({ currentUser }) {
                   </h2>
                   <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
                     <div className="bg-blue-100 py
-                    -2 px-4 grid grid-cols-4 font-semibold text-gray-700">
+                    -2 px-4 py-2 grid grid-cols-4 font-semibold text-gray-700">
                       <div>Rank</div>
                       <div>Name</div>
                       <div>Roll No.</div>
