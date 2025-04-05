@@ -362,7 +362,7 @@ export default function Game({ currentUser }) {
               </div>
               
               {leaderboard.length > 0 && (
-                <div className="mt-12 w-full max-w-md">
+                <div className="mt-12 w-full max-w-md mb-20">
                   <h2 className="text-xl font-bold mb-2 text-center">🏆 Top Players</h2>
                   <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
                     <div className="bg-blue-100 py-2 px-4 grid grid-cols-3 font-semibold text-gray-700">

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:backend": "concurrently \"cd backend && npm run dev\" \"cd backend && npm run db:studio\"",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -12,6 +13,7 @@
   "dependencies": {
     "@heroui/react": "^2.7.5",
     "axios": "^1.8.4",
+    "concurrently": "^9.1.2",
     "framer-motion": "^12.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
