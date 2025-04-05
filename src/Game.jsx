@@ -590,8 +590,8 @@ export default function Game({ currentUser }) {
                 <FaTrophy className="text-yellow-500 mr-2" /> Leaderboard
               </h1>
               <div className="bg-white rounded-xl shadow-lg border border-gray-200 min-w-[500px] max-w-[600px] overflow-hidden">
-                <div className="bg-blue-50 text-gray-700 font-semibold">
-                  <div className="grid grid-cols-5 gap-2 p-3 border-b border-gray-200">
+                <div className="bg-blue-100 text-gray-700 font-semibold">
+                  <div className="grid grid-cols-5 gap-2 px-4 py-2 border-b border-gray-200">
                     <div>Rank</div>
                     <div>Name</div>
                     <div>Roll No.</div>
