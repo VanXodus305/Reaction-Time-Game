@@ -254,11 +254,11 @@ export default function Game({ currentUser }) {
 
     if (bestTime !== null) {
       setLeaderboard((prevLeaderboard) => {
-        return [
+        let ldboard = [
           ...prevLeaderboard,
           {
             name: currentUser.name,
-            rollNo: currentUser.rollNo,
+            rollNo: currentUser.rollNumber,
             bestScore: `${bestTime}ms`,
             difficulty: gameState.difficulty,
           },
@@ -267,6 +267,11 @@ export default function Game({ currentUser }) {
           const scoreB = parseInt(b.bestScore);
           return isNaN(scoreA) || isNaN(scoreB) ? 0 : scoreA - scoreB;
         });
+        // console.log(ldboard);
+        return ldboard.filter(
+          (value, index) =>
+            ldboard.findIndex((element) => element.name == value.name) === index
+        );
       });
 
       // Make sure we're using the consistent property for roll number
@@ -391,8 +396,10 @@ export default function Game({ currentUser }) {
                     🏆 Top Players
                   </h2>
                   <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
-                    <div className="bg-blue-100 py
-                    -2 px-4 py-2 grid grid-cols-4 font-semibold text-gray-700">
+                    <div
+                      className="bg-blue-100 py
+                    -2 px-4 py-2 grid grid-cols-4 font-semibold text-gray-700"
+                    >
                       <div>Rank</div>
                       <div>Name</div>
                       <div>Roll No.</div>
